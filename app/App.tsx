@@ -2,6 +2,7 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { FilePicker } from "react-file-picker-preview";
 import NodeInspector from "./NodesInspector/NodesInspector";
+import "./index.css";
 
 const App = () => {
   const [file, setFile] = useState<File>(null);
@@ -19,9 +20,10 @@ const App = () => {
 
   return (
     <div>
-      <h1>Hello world</h1>
+      <h1>DCP report analyser</h1>
       <FilePicker
-        className="button"
+        className="file-input"
+        style={file && {paddingBottom: '30px'}}
         buttonText="Upload a file!"
         extensions={["application/json"]}
         onChange={(file) => setFile(file)}
@@ -29,9 +31,7 @@ const App = () => {
           alert("that's an error: " + error);
         }}
         onClear={() => setFile(null)}
-      >
-        The file picker
-      </FilePicker>
+      />
       <NodeInspector nodeString={inputString} />
     </div>
   );

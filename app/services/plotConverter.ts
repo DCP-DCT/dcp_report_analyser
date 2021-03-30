@@ -24,10 +24,10 @@ export const CreateTimerBarOptions = (nodes: any[]): BarPlot[] => {
       if (timers.has(key)) {
         timers.set(key, [
           ...timers.get(key),
-          node.diagnosis.timers.timers[key].avg,
+          node.diagnosis.timers.timers[key].avg / 1000,
         ]);
       } else {
-        timers.set(key, [node.diagnosis.timers.timers[key].avg]);
+        timers.set(key, [node.diagnosis.timers.timers[key].avg / 1000]);
       }
     });
   });
