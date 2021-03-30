@@ -15,3 +15,8 @@ export type HistorySummaryWithNode = {
     nodeActual: NodeDataObject;
     historySummary: HistorySummary
 }
+
+export type BarPlot = {
+    name: string;
+    data: number[];
+}
