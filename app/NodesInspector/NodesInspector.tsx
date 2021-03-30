@@ -30,6 +30,8 @@ const NodeInspector = (props: Props) => {
         historySummarized,
         nodes
       );
+
+      console.log(selectedNodesProof);
     }
   }, [nodes]);
 

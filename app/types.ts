@@ -4,3 +4,14 @@ export type HistorySummary = {
   inputValues: number[];
   output: number;
 };
+
+export type NodeDataObject = {
+    selectedBranchId: string;
+    plaintext: number;
+    count: number;
+}
+
+export type HistorySummaryWithNode = {
+    nodeActual: NodeDataObject;
+    historySummary: HistorySummary
+}
