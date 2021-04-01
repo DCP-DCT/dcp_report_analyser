@@ -1,38 +1,40 @@
 import React from "react";
-import {BarPlot} from "../types";
+import { BarPlot } from "../types";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts";
 import { useEffect, useState } from "react";
-import './style.css';
 
 type Props = {
   timers: BarPlot[];
-  nodes: any[];
+  title: string;
+  categories: string[];
+  heightPx: number;
 };
 
 const TimersChart = (props: Props) => {
-  const { timers, nodes } = props;
+  const { timers, categories, title, heightPx } = props;
 
   const [options, setOptions] = useState(null);
 
   useEffect(() => {
-    console.log(timers);
-    if (timers && nodes) {
+    if (timers) {
       setOptions({
         chart: {
           type: "bar",
+          height: heightPx,
         },
         title: {
-          text: "Node timers",
+          text: title,
         },
         xAxis: {
-          categories: nodes.map((node) => node.id),
+          categories: categories,
           title: {
             text: null,
-          },
+          }
         },
         yAxis: {
-          min: 0,
+          type: 'logarithmic',
+          minorTickInterval: 0.1,
           title: {
             text: "Avg time (ms)",
             align: "high",
@@ -40,6 +42,7 @@ const TimersChart = (props: Props) => {
           labels: {
             overflow: "justify",
           },
+
         },
         tooltip: {
           valueSuffix: " ms",
@@ -66,10 +69,10 @@ const TimersChart = (props: Props) => {
         credits: {
           enabled: false,
         },
-        series: timers
+        series: timers,
       });
     }
-  }, [timers, nodes]);
+  }, [timers]);
 
   return <HighchartsReact highcharts={Highcharts} options={options} />;
 };

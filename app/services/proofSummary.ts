@@ -35,6 +35,7 @@ export const ExtractProofsByNodeSelect = (
   proofs: HistorySummary[],
   nodes: any[]
 ): HistorySummaryWithNode[] => {
+    console.log(nodes);
   const branchIdsToExtract = nodes.map(
     (node) => node.data_object.latest_branch_id
   );
@@ -43,6 +44,8 @@ export const ExtractProofsByNodeSelect = (
     branchIdsToExtract.includes(proof.branchId)
   );
 
+  console.log(branchIdsToExtract, filtered);
+
   return nodes.map(
     (node): HistorySummaryWithNode => {
       return {
@@ -50,9 +53,10 @@ export const ExtractProofsByNodeSelect = (
           selectedBranchId: node.data_object.latest_branch_id,
           plaintext: node.data_object.plaintext,
           count: node.data_object.counter,
+          ownIdLen: node.ids.length,
         },
         historySummary: filtered.find(
-          (el) => (el.branchId === node.data_object.latest_branch_id)
+          (el) => el.branchId === node.data_object.latest_branch_id
         ),
       };
     }

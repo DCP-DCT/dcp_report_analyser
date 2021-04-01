@@ -23,6 +23,7 @@ const App = () => {
       <h1>DCP report analyser</h1>
       <FilePicker
         className="file-input"
+        maxSize={50}
         style={file && {paddingBottom: '30px'}}
         buttonText="Upload a file!"
         extensions={["application/json"]}

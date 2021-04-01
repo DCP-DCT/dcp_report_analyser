@@ -6,6 +6,7 @@ export type HistorySummary = {
 };
 
 export type NodeDataObject = {
+    ownIdLen: number;
     selectedBranchId: string;
     plaintext: number;
     count: number;
@@ -19,4 +20,9 @@ export type HistorySummaryWithNode = {
 export type BarPlot = {
     name: string;
     data: number[];
+}
+
+export type PiePlot = {
+    name: string;
+    y: number;
 }
