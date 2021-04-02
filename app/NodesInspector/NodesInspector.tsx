@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 import { convertHistoryMapToArray } from "../services/converter";
 import {
   CalculateProofSummary,
+  CreateDiagnosisMedians,
+  ExtractDiagnosisTableData,
   ExtractProofsByNodeSelect,
+  ExtractRunConfig,
 } from "../services/proofSummary";
 import {
   CreateAccumulatedBars,
@@ -11,7 +14,7 @@ import {
   CreateTimerBarOptions,
 } from "../services/plotConverter";
 import TimersChart from "./TimersChart";
-import { BarPlot, PiePlot } from "../types";
+import { BarPlot, NodeTableEntry, PiePlot, RunConfig } from "../types";
 import { DiagnosisPieChart } from "./DiagnosisPieChart";
 
 type Props = {
@@ -25,6 +28,8 @@ const NodeInspector = (props: Props) => {
   const [timers, setTimers] = useState<BarPlot[]>(null);
   const [timersAccumulated, setTimerAccumulated] = useState<BarPlot[]>(null);
   const [diagnosis, setDiagnosis] = useState<PiePlot[]>(null);
+  const [nodeTableData, setNodeTableData] = useState<NodeTableEntry[]>([]);
+  const [runConfig, setRunConfig] = useState<RunConfig>(null);
 
   useEffect(() => {
     if (nodeString != null) {
@@ -36,15 +41,15 @@ const NodeInspector = (props: Props) => {
     if (nodes) {
       const historyConvertedNodes = convertHistoryMapToArray(nodes);
       const historySummarized = CalculateProofSummary(historyConvertedNodes);
-      const selectedNodesProof = ExtractProofsByNodeSelect(
-        historySummarized,
-        nodes
-      );
+      const diagnosisTableData = ExtractDiagnosisTableData(nodes);
+      const conf = ExtractRunConfig(nodes[0]);
 
-      console.log(selectedNodesProof);
-
+      setRunConfig(conf);
+      setNodeTableData(diagnosisTableData);
       setTimers(CreateTimerBarOptions(nodes));
       setDiagnosis(CreateDiagnosisPie(nodes));
+      const digMedians = CreateDiagnosisMedians(nodes);
+      console.log(digMedians);
     }
   }, [nodes]);
 
@@ -60,6 +65,31 @@ const NodeInspector = (props: Props) => {
 
   return (
     <div>
+      <div>
+        {runConfig && (
+          <div className={"node-data-table"}>
+            <h2>Run info</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nodes#</th>
+                  <th>Decrypt threshold</th>
+                  <th>Throttle</th>
+                  <th>TTL</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{nodes.length}</td>
+                  <td>{runConfig.DecryptThreshold}</td>
+                  <td>{runConfig.Throttle + "ms"}</td>
+                  <td>{runConfig.TTL}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
       <div className={"timers-chart-container"}>
         <TimersChart
           timers={timersAccumulated}
@@ -67,6 +97,9 @@ const NodeInspector = (props: Props) => {
           categories={["Actions"]}
           heightPx={350}
         />
+      </div>
+      <div>
+        <DiagnosisPieChart series={diagnosis} />
       </div>
       <div className={"timers-chart-container"}>
         <TimersChart
@@ -76,8 +109,27 @@ const NodeInspector = (props: Props) => {
           heightPx={40 * nodes.length}
         />
       </div>
-      <div>
-        <DiagnosisPieChart series={diagnosis} />
+      <div className={"node-data-table"}>
+        <table>
+          <thead>
+            <tr>
+              <th>NodeId</th>
+              <th>Running</th>
+              <th>Plaintext</th>
+              <th>Counter</th>
+            </tr>
+          </thead>
+          <tbody>
+            {nodeTableData.map((entry) => (
+              <tr>
+                <td>{entry.nodeId}</td>
+                <td>{entry.running ? "true" : "false"}</td>
+                <td>{entry.doPt}</td>
+                <td>{entry.doCo}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

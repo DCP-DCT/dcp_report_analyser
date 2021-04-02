@@ -1,4 +1,10 @@
-import { HistorySummary, HistorySummaryWithNode } from "../types";
+import {
+  BarPlot,
+  HistorySummary,
+  HistorySummaryWithNode,
+  NodeTableEntry,
+  RunConfig,
+} from "../types";
 
 export const CalculateProofSummary = (nodes: any[]): HistorySummary[] => {
   const fullHistory = nodes.reduce((acc, node): any[] => {
@@ -35,7 +41,7 @@ export const ExtractProofsByNodeSelect = (
   proofs: HistorySummary[],
   nodes: any[]
 ): HistorySummaryWithNode[] => {
-    console.log(nodes);
+  console.log(nodes);
   const branchIdsToExtract = nodes.map(
     (node) => node.data_object.latest_branch_id
   );
@@ -43,8 +49,6 @@ export const ExtractProofsByNodeSelect = (
   const filtered = proofs.filter((proof) =>
     branchIdsToExtract.includes(proof.branchId)
   );
-
-  console.log(branchIdsToExtract, filtered);
 
   return nodes.map(
     (node): HistorySummaryWithNode => {
@@ -61,4 +65,52 @@ export const ExtractProofsByNodeSelect = (
       };
     }
   );
+};
+
+export const ExtractDiagnosisTableData = (nodes: any[]): NodeTableEntry[] => {
+  return nodes.map(
+    (node): NodeTableEntry => ({
+      nodeId: node.id,
+      running: node.process_running,
+      doPt: node.data_object.plaintext,
+      doCo: node.data_object.counter,
+    })
+  );
+};
+
+export const ExtractRunConfig = (node: any): RunConfig => {
+  return {
+    DecryptThreshold: node.config.NodeVisitDecryptThreshold,
+    Throttle: node.config.Throttle,
+    TTL: node.config.CoTTL,
+  };
+};
+
+export const CreateDiagnosisMedians = (nodes: any[]) => {
+  const diagnosis = nodes.map((node) => node.diagnosis);
+
+  const accumulated = new Map<string, number[]>();
+  diagnosis.forEach((dig) => {
+    Object.keys(dig).map((key) => {
+      if (accumulated.has(key)) {
+        accumulated.set(
+          key,
+          [...accumulated.get(key), dig[key]].sort((a, b) => a - b)
+        );
+      } else {
+        accumulated.set(key, [dig[key]]);
+      }
+    });
+  }, new Map<string, number[]>());
+
+  const medians = new Map<string, number>();
+  accumulated.forEach((val, key) => {
+    const len = val.length;
+    const mid = Math.ceil(len / 3);
+    const median = len % 2 == 0 ? (val[mid] + val[mid - 1]) / 2 : val[mid - 1];
+
+    medians.set(key, median);
+  });
+
+  return Array.from(medians, ([name, value]) => ([name, value]));
 };

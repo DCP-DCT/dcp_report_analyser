@@ -26,3 +26,16 @@ export type PiePlot = {
     name: string;
     y: number;
 }
+
+export type NodeTableEntry = {
+    nodeId: string;
+    running: boolean;
+    doPt: number;
+    doCo: number;
+}
+
+export type RunConfig = {
+    DecryptThreshold: number;
+    Throttle: number;
+    TTL: number;
+}
