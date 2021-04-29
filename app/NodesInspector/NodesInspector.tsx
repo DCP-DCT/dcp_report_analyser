@@ -30,6 +30,7 @@ const NodeInspector = (props: Props) => {
   const [diagnosis, setDiagnosis] = useState<PiePlot[]>(null);
   const [nodeTableData, setNodeTableData] = useState<NodeTableEntry[]>([]);
   const [runConfig, setRunConfig] = useState<RunConfig>(null);
+  const [diagnosisOnly, setDiagnosisOnly] = useState(true);
 
   useEffect(() => {
     if (nodeString != null) {
@@ -39,6 +40,14 @@ const NodeInspector = (props: Props) => {
 
   useEffect(() => {
     if (nodes) {
+      if (Object.keys(nodes).length === 1) {
+        // @ts-ignore
+        const medians = CreateDiagnosisMedians(nodes.nodes.map(dig => dig.diagnosis));
+        console.log(medians);
+        return;
+      }
+
+      setDiagnosisOnly(false);
       const historyConvertedNodes = convertHistoryMapToArray(nodes);
       const historySummarized = CalculateProofSummary(historyConvertedNodes);
       const diagnosisTableData = ExtractDiagnosisTableData(nodes);
@@ -48,7 +57,7 @@ const NodeInspector = (props: Props) => {
       setNodeTableData(diagnosisTableData);
       setTimers(CreateTimerBarOptions(nodes));
       setDiagnosis(CreateDiagnosisPie(nodes));
-      const digMedians = CreateDiagnosisMedians(nodes);
+      const digMedians = CreateDiagnosisMedians(nodes.map((node) => node.diagnosis));
       console.log(digMedians);
     }
   }, [nodes]);
@@ -60,6 +69,10 @@ const NodeInspector = (props: Props) => {
   }, [timers]);
 
   if (!nodes) {
+    return null;
+  }
+
+  if (diagnosisOnly) {
     return null;
   }
 

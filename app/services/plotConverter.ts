@@ -1,4 +1,5 @@
-import { BarPlot, PiePlot } from "../types";
+import {BarPlot, PiePlot} from "../types";
+import {CalculateMedianFromMap} from "./proofSummary";
 
 export const CreateTimerBarOptions = (nodes: any[]): BarPlot[] => {
   const timers = new Map<string, number[]>();
@@ -8,6 +9,8 @@ export const CreateTimerBarOptions = (nodes: any[]): BarPlot[] => {
     "PublicKeyClause",
     "UpdateCalculationObject",
   ];
+
+  console.log(nodes);
 
   nodes.forEach((node) => {
     let keys = Object.keys(node.diagnosis.timers.timers);
@@ -28,18 +31,31 @@ export const CreateTimerBarOptions = (nodes: any[]): BarPlot[] => {
       if (timers.has(key)) {
         timers.set(key, [
           ...timers.get(key),
-          node.diagnosis.timers.timers[key].avg / 1000,
+          node.diagnosis.timers.timers[key].avg,
         ]);
       } else {
-        timers.set(key, [node.diagnosis.timers.timers[key].avg / 1000]);
+        timers.set(key, [node.diagnosis.timers.timers[key].avg]);
       }
     });
   });
+
+  console.log(timers);
+  console.log(CreateTimersMedian(timers));
 
   return Array.from(
     timers,
     ([name, value]): BarPlot => ({ name: name, data: value })
   );
+};
+
+const CreateTimersMedian = (timers: Map<string, number[]>) => {
+  Object.keys(timers).map(key => {
+    const arr = timers.get(key);
+    const arrSorted = arr.sort((a, b) => a - b);
+    timers.set(key, arrSorted);
+  });
+
+  return CalculateMedianFromMap(timers);
 };
 
 export const CreateAccumulatedBars = (bars: BarPlot[]): BarPlot[] => {
@@ -48,12 +64,10 @@ export const CreateAccumulatedBars = (bars: BarPlot[]): BarPlot[] => {
       name: bar.name,
       data: [
         Math.floor(
-          (bar.data.reduce((acc, val) => {
+          bar.data.reduce((acc, val) => {
             return acc + val;
           }, 0) /
-            bar.data.length) *
-            1000
-        ) / 1000,
+            bar.data.length),
       ],
     };
   });

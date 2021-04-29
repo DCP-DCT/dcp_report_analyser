@@ -86,9 +86,7 @@ export const ExtractRunConfig = (node: any): RunConfig => {
   };
 };
 
-export const CreateDiagnosisMedians = (nodes: any[]) => {
-  const diagnosis = nodes.map((node) => node.diagnosis);
-
+export const CreateDiagnosisMedians = (diagnosis: any[]) => {
   const accumulated = new Map<string, number[]>();
   diagnosis.forEach((dig) => {
     Object.keys(dig).map((key) => {
@@ -103,14 +101,20 @@ export const CreateDiagnosisMedians = (nodes: any[]) => {
     });
   }, new Map<string, number[]>());
 
+  const medians = CalculateMedianFromMap(accumulated);
+
+  return Array.from(medians, ([name, value]) => ([name, value]));
+};
+
+export const CalculateMedianFromMap = (map: Map<string, number[]>): Map<string, number> => {
   const medians = new Map<string, number>();
-  accumulated.forEach((val, key) => {
+  map.forEach((val, key) => {
     const len = val.length;
-    const mid = Math.ceil(len / 3);
+    const mid = Math.ceil(len / 2);
     const median = len % 2 == 0 ? (val[mid] + val[mid - 1]) / 2 : val[mid - 1];
 
     medians.set(key, median);
   });
 
-  return Array.from(medians, ([name, value]) => ([name, value]));
+  return medians;
 };
